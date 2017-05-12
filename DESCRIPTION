@@ -12,3 +12,6 @@ RoxygenNote: 6.0.1
 Imports: psych
 URL: https://github.com/fboehm/gemma
 BugReports: https://github.com/fboehm/gemma/issues
+Suggests: knitr,
+    rmarkdown
+VignetteBuilder: knitr
