@@ -1,0 +1,14 @@
+Package: gemma
+Type: Package
+Title: GEMMA algorithm for estimating variance components in multivariate linear mixed effects models
+Version: 0.1.0
+Author: Frederick Boehm
+Maintainer: Frederick Boehm <frederick.boehm@gmail.com>
+Description: Uses an EM algorithm to get starting values for the Newton-Raphson method in estimating variance components for Vg and Ve.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.0.1
+Imports: psych
+URL: https://github.com/fboehm/gemma
+BugReports: https://github.com/fboehm/gemma/issues
