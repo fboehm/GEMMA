@@ -46,7 +46,7 @@ calc_gl_hat <- function(Xmat, Vg, Ve, Dmat, y){
   summands <- list()
   Sigma_bb_hat <- calc_Sigmabb_hat(Xmat, Ve, Vg, Dmat)
   b_hat <- calc_b_hat(Xmat = Xmat, Vg = Vg, Ve = Ve, Dmat = Dmat, y = y)
-  B_hat <- calc_B_hat(b_hat)
+  B_hat <- convert_b_hat(b_hat)
   n_mouse <- ncol(Xmat)
   for (l in 1:n_mouse){
     deltal <- diag(Dmat)[l]
@@ -179,7 +179,7 @@ update_Vg <- function(Xmat, Vg, Ve, Dmat, y){
   n <- ncol(y)
   summands <- list()
   b_hat <- calc_b_hat(Xmat = Xmat, Dmat = Dmat, Vg = Vg, Ve = Ve, y = y)
-  B_hat <- calc_B_hat(b_hat)
+  B_hat <- convert_b_hat(b_hat)
   for (l in 1:n){
     deltal <- diag(Dmat)[l]
     gl_hat <- calc_gl_hat()
