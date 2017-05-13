@@ -1,5 +1,4 @@
 #' Calculate little b hat
-#'
 #' @param Xmat a genotypes matrix for a single marker, dimension a by n, where a is the number of allelotypes and n the number of subjects
 #' @param Vg current value of genetic covariance matrix, with dimension d by d
 #' @param Ve current value of error covariance matrix, with dimension d by d
@@ -25,12 +24,11 @@ calc_b_hat <- function(Xmat, Vg, Ve, Dmat, y){
 }
 
 #' Convert little b hat matrix (dimension (ad) by 1) to big B hat matrix (dimension a by d), where a is the number of allelotypes at each locus (8 in case of DO) and d is number of traits
-#'
 #' @param b_hat ad by 1 matrix of stacked allelotype effect sizes
 #' @param n_traits number of traits examined simultaneously. Default value is 2
 #' @export
 
-calc_B_hat <- function(b_hat, n_traits = 2){
+convert_b_hat <- function(b_hat, n_traits = 2){
   matrix(b_hat, nrow = n_traits, byrow = FALSE)
 }
 
