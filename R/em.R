@@ -42,22 +42,13 @@ convert_b_hat <- function(b_hat, n_traits = 2){
 #' @param y a d by n matrix of phenotype values
 #' @export
 
-calc_gl_hat <- function(Xmat, Vg, Ve, Dmat, y){
-  summands <- list()
-  Sigma_bb_hat <- calc_Sigmabb_hat(Xmat, Ve, Vg, Dmat)
+calc_gl_hat <- function(Xmat, Vg, Ve, Dmat, y, l){
   b_hat <- calc_b_hat(Xmat = Xmat, Vg = Vg, Ve = Ve, Dmat = Dmat, y = y)
   B_hat <- convert_b_hat(b_hat)
-  n_mouse <- ncol(Xmat)
-  for (l in 1:n_mouse){
-    deltal <- diag(Dmat)[l]
-    Vl <- deltal * Vg + Ve
-    summands[[l]] <- deltal * Vg %*% solve(Vl) %*% (y[, l] - B_hat %*% Xmat[, l])
-  }
-  sum_terms <- 0
-  for (i in 1:length(summands)){
-    sum_terms <- sum_terms + summands[[i]]
-  }
-  return(sum_terms)
+  deltal <- diag(Dmat)[l]
+  Vl <- deltal * Vg + Ve
+  deltal * Vg %*% solve(Vl) %*% (y[, l] - B_hat %*% Xmat[, l])
+
 }
 
 
@@ -72,8 +63,6 @@ calc_gl_hat <- function(Xmat, Vg, Ve, Dmat, y){
 calc_el_hat <- function(yl, B_hat, xl, gl_hat){
   return(yl - B_hat %*% xl - gl_hat)
 }
-
-
 
 
 #' Calculate Sigmabb_hat for use in EM for multivariate LMM
@@ -183,7 +172,7 @@ update_Vg <- function(Xmat, Vg, Ve, Dmat, y){
   for (l in 1:n){
     deltal <- diag(Dmat)[l]
     gl_hat <- calc_gl_hat()
-    Sigmalgg_hat <- calc_Sigmalgg_hat()
+    Sigmalgg_hat <- calc_Sigmalgg_hat(Xmat = Xmat, Vg = Vg, Ve = Ve, Dmat = Dmat, l = l)
     summands[[l]] <- (gl_hat %*% t(gl_hat) + Sigmalgg_hat) / deltal
   }
   out <- apply(X = simplify2array(summands), MARGIN = 1:2, FUN = mean)
@@ -235,12 +224,12 @@ calc_restricted_likelihood <- function(Xmat, Vg, Ve, Dmat, y){
     b_hat <- calc_b_hat(Xmat = Xmat, Vg = Vg, Ve = Ve, Dmat = Dmat, y = y)
     # B_hat is the matricized version of b_hat
     B_hat <- matrix(b_hat, nrow = 2)
+    gl_hat <- calc_gl_hat(Xmat = Xmat, Vg = Vg, Ve = Ve, Dmat = Dmat, y = y)
     # calculate el hat values
-    el_hat <- calc_el_hat(yl = y[ , l], B_hat = , xl = , gl_hat = )
+    el_hat <- calc_el_hat(yl = y[ , l], B_hat = B_hat, xl = Xmat[, l], gl_hat = gl_hat)
     term4 <- - t(el_hat) %*% solve(Ve) %*% el_hat / 2
-    Sigmalee_hat <- calc_Sigmalee_hat()
+    Sigmalee_hat <- calc_Sigmalee_hat(Xmat = Xmat, Vg = Vg, Ve = Ve, Dmat = Dmat, l = l)
     term5 <- - psych::tr(solve(Ve) %*% Sigmalee_hat) / 2
-    gl_hat <- calc_gl_hat()
     term6 <- - t(gl_hat) %*% solve(deltal * Vg) %*% gl_hat / 2
     Sigmalgg_hat <- calc_Sigmalgg_hat()
     term7 <- - psych::tr(solve(deltal * Vg) %*% Sigmalgg_hat) / 2
@@ -252,4 +241,4 @@ calc_restricted_likelihood <- function(Xmat, Vg, Ve, Dmat, y){
   }
   return(out)
 }
-##############
+

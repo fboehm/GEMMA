@@ -4,7 +4,7 @@
 \alias{calc_gl_hat}
 \title{Calculate gl_hat in EM for multivariate LMM}
 \usage{
-calc_gl_hat(Xmat, Vg, Ve, Dmat, y)
+calc_gl_hat(Xmat, Vg, Ve, Dmat, y, l)
 }
 \arguments{
 \item{Xmat}{a genotypes matrix for a single marker, dimension a by n, where a is the number of allelotypes and n the number of subjects}
