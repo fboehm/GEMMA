@@ -16,6 +16,8 @@ calc_gl_hat(Xmat, Vg, Ve, Dmat, y, l)
 \item{Dmat}{a diagonal matrix containing the eigenvalues of the kinship matrix, K = UtDU}
 
 \item{y}{a d by n matrix of phenotype values}
+
+\item{l}{a number from 1 to n to indicate the subject number}
 }
 \description{
 Calculate gl_hat in EM for multivariate LMM

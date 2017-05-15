@@ -40,6 +40,7 @@ convert_b_hat <- function(b_hat, n_traits = 2){
 #' @param Ve current value of error covariance matrix, with dimension d by d
 #' @param Dmat a diagonal matrix containing the eigenvalues of the kinship matrix, K = UtDU
 #' @param y a d by n matrix of phenotype values
+#' @param l a number from 1 to n to indicate the subject number
 #' @export
 
 calc_gl_hat <- function(Xmat, Vg, Ve, Dmat, y, l){
