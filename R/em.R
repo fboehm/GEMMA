@@ -207,6 +207,7 @@ update_Ve <- function(Xmat, Vg, Ve, Dmat, y){
     el_hat <- calc_el_hat(yl, B_hat, xl, gl_hat)
     Sigmalee_hat <- calc_Sigmalee_hat(Xmat, Vg, Ve, Dmat, l)
     summands[[l]] <- el_hat %*% t(el_hat) + Sigmalee_hat
+    if (l %% 20 == 0) print(l)
   }
   out <- apply(X = simplify2array(summands), MARGIN = 1:2, FUN = mean)
   return(out)
@@ -234,7 +235,7 @@ calc_restricted_likelihood <- function(Xmat, Vg, Ve, Dmat, y){
     # get B_hat values
     b_hat <- calc_b_hat(Xmat = Xmat, Vg = Vg, Ve = Ve, Dmat = Dmat, y = y)
     # B_hat is the matricized version of b_hat
-    B_hat <- matrix(b_hat, nrow = 2)
+    B_hat <- convert_b_hat(b_hat)
     gl_hat <- calc_gl_hat(Xmat, Vg, Ve, Dmat, y, l)
     # calculate el hat values
     el_hat <- calc_el_hat(yl = y[ , l], B_hat = B_hat, xl = Xmat[, l], gl_hat = gl_hat)
