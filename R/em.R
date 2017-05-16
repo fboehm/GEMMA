@@ -108,16 +108,20 @@ calc_Sigmalgg_hat <- function(Xmat, Vg, Ve, Dmat, l){
   # calculate term3
   term3s <- list()
   n_mouse <- ncol(Xmat)
-  for (l in 1:n_mouse){
-    deltal <- diag(Dmat)[l]
-    Vl <- deltal * Vg + Ve
-    term3s[[l]] <- kronecker(xl %*% t(xl), deltal * Vg %*% solve(Vl))
+  for (j in 1:n_mouse){
+    xj <- Xmat[ , j]
+    deltaj <- diag(Dmat)[j]
+    Vj <- deltaj * Vg + Ve
+    term3s[[j]] <- kronecker(xj %*% t(xj), deltaj * Vg %*% solve(Vj))
   }
   term3s_sum <- 0
   for (i in 1:length(term3s)){
     term3s_sum <- term3s_sum + term3s[[i]]
   }
   term3 <- solve(term3s_sum)
+  dim(term3)
+  dim(term2)
+  dim(term4)
   return(term1 + term2 %*% term3 %*% term4)
 }
 
@@ -141,10 +145,11 @@ calc_Sigmalee_hat <- function(Xmat, Vg, Ve, Dmat, l){
   # calculate term3
   term3s <- list()
   n_mouse <- ncol(Xmat)
-  for (l in 1:n_mouse){
-    deltal <- diag(Dmat)[l]
-    Vl <- deltal * Vg + Ve
-    term3s[[l]] <- kronecker(xl %*% t(xl), deltal * Vg %*% solve(Vl))
+  for (j in 1:n_mouse){
+    xj <- Xmat[ , j]
+    deltaj <- diag(Dmat)[l]
+    Vj <- deltaj * Vg + Ve
+    term3s[[j]] <- kronecker(xj %*% t(xj), deltaj * Vg %*% solve(Vj))
   }
   term3s_sum <- 0
   for (i in 1:length(term3s)){
@@ -172,7 +177,7 @@ update_Vg <- function(Xmat, Vg, Ve, Dmat, y){
   B_hat <- convert_b_hat(b_hat)
   for (l in 1:n){
     deltal <- diag(Dmat)[l]
-    gl_hat <- calc_gl_hat()
+    gl_hat <- calc_gl_hat(Xmat, Vg, Ve, Dmat, l)
     Sigmalgg_hat <- calc_Sigmalgg_hat(Xmat = Xmat, Vg = Vg, Ve = Ve, Dmat = Dmat, l = l)
     summands[[l]] <- (gl_hat %*% t(gl_hat) + Sigmalgg_hat) / deltal
   }
@@ -194,8 +199,13 @@ update_Ve <- function(Xmat, Vg, Ve, Dmat, y){
   n <- ncol(y)
   summands <- list()
   for (l in 1:n){
-    el_hat <- calc_el_hat()
-    Sigmalee_hat <- calc_Sigmalee_hat()
+    yl <- y[ , l]
+    xl <- Xmat[ , l]
+    b_hat <- calc_b_hat(Xmat, Vg, Ve, Dmat, y)
+    B_hat <- convert_b_hat(b_hat)
+    calc_gl_hat(Xmat, Vg, Ve, Dmat, y, l)
+    el_hat <- calc_el_hat(yl, B_hat, xl, gl_hat)
+    Sigmalee_hat <- calc_Sigmalee_hat(Xmat, Vg, Ve, Dmat, l)
     summands[[l]] <- el_hat %*% t(el_hat) + Sigmalee_hat
   }
   out <- apply(X = simplify2array(summands), MARGIN = 1:2, FUN = mean)
@@ -220,21 +230,22 @@ calc_restricted_likelihood <- function(Xmat, Vg, Ve, Dmat, y){
     term1 <- - d * log(2 * pi)
     term2 <- - log(det(Ve)) / 2
     deltal <- diag(Dmat)[l]
-    term3 <- - log(deltal * Vg) / 2
+    term3 <- - log(det(deltal * Vg)) / 2
     # get B_hat values
     b_hat <- calc_b_hat(Xmat = Xmat, Vg = Vg, Ve = Ve, Dmat = Dmat, y = y)
     # B_hat is the matricized version of b_hat
     B_hat <- matrix(b_hat, nrow = 2)
-    gl_hat <- calc_gl_hat(Xmat = Xmat, Vg = Vg, Ve = Ve, Dmat = Dmat, y = y)
+    gl_hat <- calc_gl_hat(Xmat, Vg, Ve, Dmat, y, l)
     # calculate el hat values
     el_hat <- calc_el_hat(yl = y[ , l], B_hat = B_hat, xl = Xmat[, l], gl_hat = gl_hat)
     term4 <- - t(el_hat) %*% solve(Ve) %*% el_hat / 2
     Sigmalee_hat <- calc_Sigmalee_hat(Xmat = Xmat, Vg = Vg, Ve = Ve, Dmat = Dmat, l = l)
     term5 <- - psych::tr(solve(Ve) %*% Sigmalee_hat) / 2
     term6 <- - t(gl_hat) %*% solve(deltal * Vg) %*% gl_hat / 2
-    Sigmalgg_hat <- calc_Sigmalgg_hat()
+    Sigmalgg_hat <- calc_Sigmalgg_hat(Xmat, Vg, Ve, Dmat, l)
     term7 <- - psych::tr(solve(deltal * Vg) %*% Sigmalgg_hat) / 2
     summands[[l]] <- term1 + term2 + term3 + term4 + term5 + term6 + term7
+    if (l %% 10 == 1) print(l)
   }
   out <- 0
   for (i in 1:n_mouse){
