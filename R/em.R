@@ -204,7 +204,7 @@ update_Ve <- function(Xmat, Vg, Ve, Dmat, y){
     xl <- Xmat[ , l]
     b_hat <- calc_b_hat(Xmat, Vg, Ve, Dmat, y)
     B_hat <- convert_b_hat(b_hat)
-    calc_gl_hat(Xmat, Vg, Ve, Dmat, y, l)
+    gl_hat <- calc_gl_hat(Xmat, Vg, Ve, Dmat, y, l)
     el_hat <- calc_el_hat(yl, B_hat, xl, gl_hat)
     Sigmalee_hat <- calc_Sigmalee_hat(Xmat, Vg, Ve, Dmat, l)
     summands[[l]] <- el_hat %*% t(el_hat) + Sigmalee_hat
