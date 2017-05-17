@@ -171,15 +171,16 @@ calc_Sigmalee_hat <- function(Xmat, Vg, Ve, Dmat, l){
 #' @export
 
 update_Vg <- function(Xmat, Vg, Ve, Dmat, y){
-  n <- ncol(y)
+  n_mouse <- ncol(y)
   summands <- list()
   b_hat <- calc_b_hat(Xmat = Xmat, Dmat = Dmat, Vg = Vg, Ve = Ve, y = y)
   B_hat <- convert_b_hat(b_hat)
-  for (l in 1:n){
+  for (l in 1:n_mouse){
     deltal <- diag(Dmat)[l]
-    gl_hat <- calc_gl_hat(Xmat, Vg, Ve, Dmat, l)
+    gl_hat <- calc_gl_hat(Xmat, Vg, Ve, Dmat, y, l)
     Sigmalgg_hat <- calc_Sigmalgg_hat(Xmat = Xmat, Vg = Vg, Ve = Ve, Dmat = Dmat, l = l)
     summands[[l]] <- (gl_hat %*% t(gl_hat) + Sigmalgg_hat) / deltal
+    if (l %% 20 == 0) print(l)
   }
   out <- apply(X = simplify2array(summands), MARGIN = 1:2, FUN = mean)
   return(out)
