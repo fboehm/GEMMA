@@ -43,13 +43,9 @@ convert_b_hat <- function(b_hat, n_traits = 2){
 #' @param l a number from 1 to n to indicate the subject number
 #' @export
 
-calc_gl_hat <- function(Xmat, Vg, Ve, Dmat, y, l){
-  b_hat <- calc_b_hat(Xmat = Xmat, Vg = Vg, Ve = Ve, Dmat = Dmat, y = y)
-  B_hat <- convert_b_hat(b_hat)
-  deltal <- diag(Dmat)[l]
+calc_gl_hat <- function(yl, B_hat, Vg, Ve, xl, deltal){
   Vl <- deltal * Vg + Ve
-  deltal * Vg %*% solve(Vl) %*% (y[, l] - B_hat %*% Xmat[, l])
-
+  return(deltal * Vg %*% solve(Vl) %*% (yl - B_hat %*% xl))
 }
 
 
@@ -119,9 +115,6 @@ calc_Sigmalgg_hat <- function(Xmat, Vg, Ve, Dmat, l){
     term3s_sum <- term3s_sum + term3s[[i]]
   }
   term3 <- solve(term3s_sum)
-  dim(term3)
-  dim(term2)
-  dim(term4)
   return(term1 + term2 %*% term3 %*% term4)
 }
 
@@ -177,10 +170,12 @@ update_Vg <- function(Xmat, Vg, Ve, Dmat, y){
   B_hat <- convert_b_hat(b_hat)
   for (l in 1:n_mouse){
     deltal <- diag(Dmat)[l]
-    gl_hat <- calc_gl_hat(Xmat, Vg, Ve, Dmat, y, l)
+    yl <- y[ , l]
+    xl <- Xmat[ , l]
+    gl_hat <- calc_gl_hat(yl, B_hat, Vg, Ve, xl, deltal)
     Sigmalgg_hat <- calc_Sigmalgg_hat(Xmat = Xmat, Vg = Vg, Ve = Ve, Dmat = Dmat, l = l)
     summands[[l]] <- (gl_hat %*% t(gl_hat) + Sigmalgg_hat) / deltal
-    if (l %% 20 == 0) print(l)
+  #  if (l %% 20 == 0) print(l)
   }
   out <- apply(X = simplify2array(summands), MARGIN = 1:2, FUN = mean)
   return(out)
@@ -197,18 +192,19 @@ update_Vg <- function(Xmat, Vg, Ve, Dmat, y){
 #' @export
 
 update_Ve <- function(Xmat, Vg, Ve, Dmat, y){
-  n <- ncol(y)
+  n_mouse <- ncol(y)
   summands <- list()
-  for (l in 1:n){
+  b_hat <- calc_b_hat(Xmat, Vg, Ve, Dmat, y)
+  B_hat <- convert_b_hat(b_hat)
+  for (l in 1:n_mouse){
     yl <- y[ , l]
     xl <- Xmat[ , l]
-    b_hat <- calc_b_hat(Xmat, Vg, Ve, Dmat, y)
-    B_hat <- convert_b_hat(b_hat)
-    gl_hat <- calc_gl_hat(Xmat, Vg, Ve, Dmat, y, l)
+    deltal <- diag(Dmat)[l] # don't forget to define deltal!!!!
+    gl_hat <- calc_gl_hat(yl, B_hat, Vg, Ve, xl, deltal)
     el_hat <- calc_el_hat(yl, B_hat, xl, gl_hat)
     Sigmalee_hat <- calc_Sigmalee_hat(Xmat, Vg, Ve, Dmat, l)
     summands[[l]] <- el_hat %*% t(el_hat) + Sigmalee_hat
-    if (l %% 20 == 0) print(l)
+    #if (l %% 20 == 0) print(l)
   }
   out <- apply(X = simplify2array(summands), MARGIN = 1:2, FUN = mean)
   return(out)
@@ -237,7 +233,9 @@ calc_restricted_likelihood <- function(Xmat, Vg, Ve, Dmat, y){
     b_hat <- calc_b_hat(Xmat = Xmat, Vg = Vg, Ve = Ve, Dmat = Dmat, y = y)
     # B_hat is the matricized version of b_hat
     B_hat <- convert_b_hat(b_hat)
-    gl_hat <- calc_gl_hat(Xmat, Vg, Ve, Dmat, y, l)
+    xl <- Xmat[ , l]
+    yl <- y[ , l]
+    gl_hat <- calc_gl_hat(yl, B_hat, Vg, Ve, xl, deltal)
     # calculate el hat values
     el_hat <- calc_el_hat(yl = y[ , l], B_hat = B_hat, xl = Xmat[, l], gl_hat = gl_hat)
     term4 <- - t(el_hat) %*% solve(Ve) %*% el_hat / 2
@@ -247,7 +245,7 @@ calc_restricted_likelihood <- function(Xmat, Vg, Ve, Dmat, y){
     Sigmalgg_hat <- calc_Sigmalgg_hat(Xmat, Vg, Ve, Dmat, l)
     term7 <- - psych::tr(solve(deltal * Vg) %*% Sigmalgg_hat) / 2
     summands[[l]] <- term1 + term2 + term3 + term4 + term5 + term6 + term7
-    if (l %% 10 == 1) print(l)
+    #if (l %% 10 == 1) print(l)
   }
   out <- 0
   for (i in 1:n_mouse){
