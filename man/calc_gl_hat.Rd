@@ -4,14 +4,14 @@
 \alias{calc_gl_hat}
 \title{Calculate gl_hat in EM for multivariate LMM}
 \usage{
-calc_gl_hat(Xmat, Vg, Ve, Dmat, y, l)
+calc_gl_hat(yl, B_hat, Vg, Ve, xl, deltal)
 }
 \arguments{
-\item{Xmat}{a genotypes matrix for a single marker, dimension a by n, where a is the number of allelotypes and n the number of subjects}
-
 \item{Vg}{current value of genetic covariance matrix, with dimension d by d}
 
 \item{Ve}{current value of error covariance matrix, with dimension d by d}
+
+\item{Xmat}{a genotypes matrix for a single marker, dimension a by n, where a is the number of allelotypes and n the number of subjects}
 
 \item{Dmat}{a diagonal matrix containing the eigenvalues of the kinship matrix, K = UtDU}
 
