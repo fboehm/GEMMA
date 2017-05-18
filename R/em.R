@@ -86,7 +86,7 @@ calc_Sigmabb_hat <- function(Xmat, Ve, Vg, Dmat){
   for (i in 1:length(kprods)){
     sum_kprods <- sum_kprods + kprods[[i]]
   }
-  return(sum_kprods)
+  return(solve(sum_kprods))
 }
 
 #' Calculate Sigmalgg_hat
