@@ -35,12 +35,12 @@ convert_b_hat <- function(b_hat, n_traits = 2){
 
 #' Calculate gl_hat in EM for multivariate LMM
 #'
-#' @param Xmat a genotypes matrix for a single marker, dimension a by n, where a is the number of allelotypes and n the number of subjects
+#' @param yl a column, ie, the lth, from the y matrix
+#' @param B_hat a matrix of coefficient estimates
 #' @param Vg current value of genetic covariance matrix, with dimension d by d
 #' @param Ve current value of error covariance matrix, with dimension d by d
-#' @param Dmat a diagonal matrix containing the eigenvalues of the kinship matrix, K = UtDU
-#' @param y a d by n matrix of phenotype values
-#' @param l a number from 1 to n to indicate the subject number
+#' @param xl a column from the x matrix
+#' @param deltal lth eigenvalue of K matrix
 #' @export
 
 calc_gl_hat <- function(yl, B_hat, Vg, Ve, xl, deltal){

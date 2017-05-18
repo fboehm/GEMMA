@@ -7,17 +7,17 @@
 calc_gl_hat(yl, B_hat, Vg, Ve, xl, deltal)
 }
 \arguments{
+\item{yl}{a column, ie, the lth, from the y matrix}
+
+\item{B_hat}{a matrix of coefficient estimates}
+
 \item{Vg}{current value of genetic covariance matrix, with dimension d by d}
 
 \item{Ve}{current value of error covariance matrix, with dimension d by d}
 
-\item{Xmat}{a genotypes matrix for a single marker, dimension a by n, where a is the number of allelotypes and n the number of subjects}
+\item{xl}{a column from the x matrix}
 
-\item{Dmat}{a diagonal matrix containing the eigenvalues of the kinship matrix, K = UtDU}
-
-\item{y}{a d by n matrix of phenotype values}
-
-\item{l}{a number from 1 to n to indicate the subject number}
+\item{deltal}{lth eigenvalue of K matrix}
 }
 \description{
 Calculate gl_hat in EM for multivariate LMM
